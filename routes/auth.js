@@ -1,21 +1,30 @@
 import express from "express";
 import { login, register } from "../controllers/auth.js";
 import multer from "multer";
+import fs from "fs";
 
 const router = express.Router();
 
-// Multer setup for handling profile picture uploads
+/* Multer setup */
+const uploadPath = "public/assets";
+
+/* REQUIRED for Render (folder does not exist by default) */
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "public/assets");
+    cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
   },
 });
+
 const upload = multer({ storage });
 
-// Routes
+/* Routes */
 router.post("/register", upload.single("picture"), register);
 router.post("/login", login);
 
