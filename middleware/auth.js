@@ -5,17 +5,17 @@ export const verifyToken = async (req, res, next) => {
     let token = req.header("Authorization");
 
     if (!token) {
-      return res.status(403).send("Access Denied");
+      return res.status(401).send("Access Denied");
     }
 
     if (token.startsWith("Bearer ")) {
-      token = token.slice(7, token.length).trimLeft();
+      token = token.slice(7).trim();
     }
 
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    const verified = jwt.verify(token, process.env.SECRET_KEY);
     req.user = verified;
     next();
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(401).json({ error: "Invalid or expired token" });
   }
 };
