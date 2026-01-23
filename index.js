@@ -30,7 +30,8 @@ app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors({ origin: "https://prismatic-mandazi-750463.netlify.app", credentials: true }));
-app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+app.use("/assets", express.static("public/assets"));
+
 
 /* FILE STORAGE */
 const storage = multer.diskStorage({

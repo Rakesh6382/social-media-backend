@@ -1,14 +1,23 @@
 import express from "express";
-import { getFeedPosts, getUserPosts, likePost } from "../controllers/posts.js";
-import { verifyToken } from "../middleware/auth.js";
+import multer from "multer";
+import { register, login } from "../controllers/auth.js";
 
 const router = express.Router();
 
-/* READ */
-router.get("/", verifyToken, getFeedPosts);
-router.get("/:userId/posts", verifyToken, getUserPosts);
+/* FILE STORAGE */
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/assets");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
 
-/* UPDATE */
-router.patch("/:id/like", verifyToken, likePost);
+const upload = multer({ storage });
+
+/* AUTH ROUTES */
+router.post("/register", upload.single("picture"), register);
+router.post("/login", login);
 
 export default router;
