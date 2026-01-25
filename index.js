@@ -29,7 +29,7 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cors({ origin: "https://prismatic-mandazi-750463.netlify.app", credentials: true }));
+app.use(cors({ origin: "https://guileless-seahorse-92e1f1.netlify.app", credentials: true }));
 app.use("/assets", express.static("public/assets"));
 
 
