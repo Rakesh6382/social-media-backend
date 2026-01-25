@@ -2,44 +2,48 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-/* REGISTER USER */
+/* REGISTER */
 export const register = async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      location,
-      occupation,
-    } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
-    // ✅ Hash password
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
-
-    // ✅ Safe file handling
-    const picturePath = req.file ? req.file.filename : "";
 
     const newUser = new User({
       firstName,
       lastName,
       email,
       password: passwordHash,
-      location,
-      occupation,
-      picturePath,
+      picturePath: req.file?.filename || "",
     });
 
     const savedUser = await newUser.save();
-
-    // ✅ NEVER send password back
-    const userResponse = { ...savedUser._doc };
-    delete userResponse.password;
-
-    res.status(201).json(userResponse);
+    res.status(201).json(savedUser);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* LOGIN */
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ msg: "User not found" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(400).json({ msg: "Invalid credentials" });
+
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET || "testsecret"
+    );
+
+    res.status(200).json({ token, user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
