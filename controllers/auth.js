@@ -14,21 +14,32 @@ export const register = async (req, res) => {
       occupation,
     } = req.body;
 
-    const picturePath = req.file?.filename;
+    // ✅ Hash password
+    const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // ✅ Safe file handling
+    const picturePath = req.file ? req.file.filename : "";
 
     const newUser = new User({
       firstName,
       lastName,
       email,
-      password,
+      password: passwordHash,
       location,
       occupation,
       picturePath,
     });
 
     const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+
+    // ✅ NEVER send password back
+    const userResponse = { ...savedUser._doc };
+    delete userResponse.password;
+
+    res.status(201).json(userResponse);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ message: err.message });
   }
 };
